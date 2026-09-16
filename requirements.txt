@@ -1,0 +1,4 @@
+tomli_w
+matplotlib
+httpx
+pillow
