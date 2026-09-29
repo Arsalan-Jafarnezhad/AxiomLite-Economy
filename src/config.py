@@ -10,8 +10,8 @@ live under ASSETS_DIR instead.
 import sys
 from pathlib import Path
 
-# Repository root: .../src/axiom_economy/config.py -> up 3 levels.
-REPO_ROOT = Path(__file__).resolve().parents[2]
+# Repository root: .../src/config.py -> up 2 levels.
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 ASSETS_DIR = REPO_ROOT / "assets"
 IMAGES_DIR = ASSETS_DIR / "images"

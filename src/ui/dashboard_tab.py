@@ -18,11 +18,13 @@ class DashboardTabMixin:
     """Mixin providing the Dashboard tab (bar chart / monthly table)."""
 
     def _build_dashboard_tab(self):
-        top_bar = Frame(self.dashboard_tab, bg=BG)
+        container = Frame(self.dashboard_tab, bg=BG)
+        container.pack(side=TOP, fill=BOTH, expand=YES, padx=24, pady=20)
+
+        top_bar = Frame(container, bg=BG)
         top_bar.pack(side=TOP, fill=X, pady=(0, 8))
 
-        self.summary_label = Label(top_bar, text="", bg=BG, fg=FG, font=("Segoe UI", 11), justify=LEFT)
-        self.summary_label.pack(side=LEFT)
+        ttk.Label(top_bar, text="Cash Flow Chart", style="Title.TLabel").pack(side=LEFT)
 
         ttk.Button(
             top_bar, text="⟳ Switch Graph", style="Ghost.TButton", command=self.switch_graphs
@@ -31,7 +33,7 @@ class DashboardTabMixin:
             top_bar, text="↻ Refresh", style="Accent.TButton", command=self.refresh_all
         ).pack(side=RIGHT, padx=(8, 0))
 
-        filter_bar = Frame(self.dashboard_tab, bg=BG)
+        filter_bar = Frame(container, bg=BG)
         filter_bar.pack(side=TOP, fill=X, pady=(0, 8))
         Label(filter_bar, text="Show on chart:", bg=BG, fg=MUTED, font=("Segoe UI", 9)).pack(side=LEFT)
 
@@ -45,7 +47,7 @@ class DashboardTabMixin:
         ).pack(side=LEFT, padx=(10, 0))
 
         self.fig, self.ax = config_plot()
-        self.plot_frame = Frame(self.dashboard_tab, bg=BG)
+        self.plot_frame = Frame(container, bg=BG)
         self.plot_frame.pack(side=TOP, expand=YES, fill=BOTH)
 
         self.canvas = FigureCanvasTkAgg(self.fig, self.plot_frame)
@@ -53,7 +55,7 @@ class DashboardTabMixin:
         self.canvas.get_tk_widget().configure(bg=BG)
         self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
 
-        toolbar_frame = Frame(self.dashboard_tab, bg=BG)
+        toolbar_frame = Frame(container, bg=BG)
         toolbar_frame.pack(side=BOTTOM, fill=X)
         toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
         toolbar.config(background=BG)

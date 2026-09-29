@@ -14,6 +14,7 @@ from ..economy import Economy
 from .add_payment_tab import AddPaymentTabMixin
 from .dashboard_tab import DashboardTabMixin
 from .import_export_tab import ImportExportTabMixin
+from .info_tab import InfoTabMixin
 from .payments_tab import PaymentsTabMixin
 from .social import SocialLinksMixin
 from .sorting import SortableTreeviewMixin
@@ -26,6 +27,7 @@ class App(
     SocialLinksMixin,
     SortableTreeviewMixin,
     DashboardTabMixin,
+    InfoTabMixin,
     AddPaymentTabMixin,
     PaymentsTabMixin,
     UsersTabMixin,
@@ -42,6 +44,7 @@ class App(
         self._build_layout()
 
         self._build_dashboard_tab()
+        self._build_info_tab()
         self._build_add_payment_tab()
         self._build_payments_tab()
         self._build_users_tab()
@@ -129,10 +132,8 @@ class App(
             header_left, text="💰 Personal Money Management App", bg=BG, fg=FG,
             font=("Segoe UI", 17, "bold"),
         ).pack(anchor="w")
-        self.usd_label = Label(header_left, text="", bg=BG, fg=MUTED, font=("Segoe UI", 10))
-        self.usd_label.pack(anchor="w", pady=(2, 0))
-        self.holdings_label = Label(header_left, text="", bg=BG, fg=MUTED, font=("Segoe UI", 10))
-        self.holdings_label.pack(anchor="w", pady=(2, 0))
+        self.net_worth_label = Label(header_left, text="", bg=BG, fg=MUTED, font=("Segoe UI", 10))
+        self.net_worth_label.pack(anchor="w", pady=(2, 0))
 
         header_right = Frame(header, bg=BG)
         header_right.grid(row=0, column=1, sticky="ne")
@@ -142,12 +143,14 @@ class App(
         self.notebook.pack(expand=YES, fill=BOTH, padx=16, pady=16)
 
         self.dashboard_tab = Frame(self.notebook, bg=BG)
+        self.info_tab = Frame(self.notebook, bg=BG)
         self.add_payment_tab = Frame(self.notebook, bg=BG)
         self.payments_tab = Frame(self.notebook, bg=BG)
         self.users_tab = Frame(self.notebook, bg=BG)
         self.import_export_tab = Frame(self.notebook, bg=BG)
 
         self.notebook.add(self.dashboard_tab, text="  Dashboard  ")
+        self.notebook.add(self.info_tab, text="  Info  ")
         self.notebook.add(self.add_payment_tab, text="  Add Payment  ")
         self.notebook.add(self.payments_tab, text="  Payments  ")
         self.notebook.add(self.users_tab, text="  Users  ")
@@ -160,26 +163,12 @@ class App(
         self.monthly_money_differences = self._get_monthly_money_differences()
         self.monthly_table_data = self._get_monthly_table_data()
 
-        money_difference = self.get_money_difference()
-        sign = "+" if money_difference >= 0 else ""
-        self.summary_label.config(
-            text=(
-                f"Total Money: {self.get_total_money():,.0f} T   "
-                f"({self.get_total_money_usdt():,.2f} $)     "
-                f"This Year: {sign}{money_difference:,.0f} T"
-            )
-        )
-        self.usd_label.config(text=f"1 USDT ≈ {self.usdt_irt:,.0f} T")
-
-        usdt_holdings = self.get_asset_holdings("USDT")
-        gold_holdings = self.get_asset_holdings("GOLD")
-        self.holdings_label.config(
-            text=(
-                f"Holdings: {usdt_holdings:,.4g} USDT (~{self.get_crypto_money():,.0f} T)  ·  "
-                f"{gold_holdings:,.4g} g Gold (~{self.get_gold_money():,.0f} T)"
-            )
+        total_money = self.get_total_money()
+        self.net_worth_label.config(
+            text=f"Net Worth: {total_money:,.0f} T  ·  {self.get_total_money_usdt():,.2f} $"
         )
 
+        self._refresh_info_tab()
         self._refresh_user_combo(keep_selection=self.user_var.get() if hasattr(self, "user_var") else None)
         self._refresh_users_tree()
         self._refresh_payments_tree()
